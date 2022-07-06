@@ -15,7 +15,7 @@ public class AttackAction : Action
 		Vector3 position = controller.eyes.position;
 		float radius = controller.enemyStats.lookSphereCastRadius;
 		Vector3 direction = controller.eyes.forward;
-		float attackRange = controller.enemyStats.attackRange;
+		float attackRange = controller.enemyStats.attackRange ;
 
 		Debug.DrawRay(position, direction.normalized * attackRange, Color.red);
 

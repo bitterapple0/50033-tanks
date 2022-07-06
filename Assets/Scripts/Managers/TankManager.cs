@@ -90,7 +90,7 @@ public class TankManager
         m_Instance.transform.position = m_SpawnPoint.position;
         m_Instance.transform.rotation = m_SpawnPoint.rotation;
         if(m_Difficulty != null){
-           m_NavMeshAgent.speed = m_Difficulty.Value + 3.0f;
+           m_NavMeshAgent.speed = m_Difficulty.Value * 2;
             Debug.Log("Updated Speed:" + m_NavMeshAgent.speed);
         }
         m_Instance.SetActive(false);
