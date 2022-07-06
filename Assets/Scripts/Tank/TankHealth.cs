@@ -9,12 +9,14 @@ public class TankHealth : MonoBehaviour
     public Color m_FullHealthColor = Color.green;  
     public Color m_ZeroHealthColor = Color.red;    
     public GameObject m_ExplosionPrefab;
-    
+    public FloatVariable m_Difficulty;
+    public bool m_isAI = false;            
+
     private AudioSource m_ExplosionAudio;          
     private ParticleSystem m_ExplosionParticles;   
     private float m_CurrentHealth;  
-    private bool m_Dead;            
-
+    private bool m_Dead;
+    
 
     private void Awake()
     {
@@ -27,7 +29,7 @@ public class TankHealth : MonoBehaviour
 
     private void OnEnable()
     {
-        m_CurrentHealth = m_StartingHealth;
+        m_CurrentHealth =  m_StartingHealth;
         m_Dead = false;
 
         SetHealthUI();
@@ -36,7 +38,15 @@ public class TankHealth : MonoBehaviour
     public void TakeDamage(float amount)
     {
         // Adjust the tank's current health, update the UI based on the new health and check whether or not the tank is dead.
-        m_CurrentHealth -= amount;
+        Debug.Log("Original " + amount);
+        if(!m_isAI){
+            amount += m_Difficulty.Value * 0.06f * amount; // Player takes more damage
+            Debug.Log("player took: " + amount);
+        } else{
+            amount -= m_Difficulty.Value * 0.15f * amount; // AI takes less damage
+            Debug.Log("AI took: " + amount);
+        }
+        m_CurrentHealth -= amount ;
 
         SetHealthUI();
         if (m_CurrentHealth <= 0f && !m_Dead) OnDeath();
@@ -46,6 +56,7 @@ public class TankHealth : MonoBehaviour
     private void SetHealthUI()
     {
         // Adjust the value and colour of the slider.
+ 
         m_Slider.value = m_CurrentHealth;
         m_FillImage.color = Color.Lerp(m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
     }

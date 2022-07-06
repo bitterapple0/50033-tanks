@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [Serializable]
 public class TankManager
@@ -8,6 +9,7 @@ public class TankManager
     
     public Color m_PlayerColor;
     public Transform m_SpawnPoint;
+    public FloatVariable m_Difficulty;
     [HideInInspector] public int m_PlayerNumber;
     [HideInInspector] public string m_ColoredPlayerText;
     [HideInInspector] public GameObject m_Instance;
@@ -16,20 +18,29 @@ public class TankManager
 
     private TankMovement m_Movement;
     private TankShooting m_Shooting;
+    private TankHealth m_Health;
     private GameObject m_CanvasGameObject;
     private StateController m_StateController;
+    private NavMeshAgent m_NavMeshAgent;
 
     public void SetupAI(List<Transform> wayPointList)
     {
         m_StateController = m_Instance.GetComponent<StateController>();
         m_StateController.SetupAI(true, wayPointList);
+        m_StateController.difficulty = m_Difficulty;
 
         m_Shooting = m_Instance.GetComponent<TankShooting>();
         m_Shooting.m_PlayerNumber = m_PlayerNumber;
 
+        m_Health  = m_Instance.GetComponent<TankHealth>();
+        m_Health.m_isAI = true;
+        m_Health.m_Difficulty = m_Difficulty;
+
+        m_NavMeshAgent = m_Instance.GetComponent<NavMeshAgent>();
+        m_NavMeshAgent.speed = m_Difficulty.Value + 3.0f;
+
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
         m_ColoredPlayerText = $"<color=#{ColorUtility.ToHtmlStringRGB(m_PlayerColor)}>PLAYER {m_PlayerNumber}</color>";
-
         MeshRenderer[] renderers = m_Instance.GetComponentsInChildren<MeshRenderer>();
 
         for (int i = 0; i < renderers.Length; i++) renderers[i].material.color = m_PlayerColor;
@@ -75,9 +86,13 @@ public class TankManager
 
     public void Reset()
     {
+        // Debug.Log("RESET CALLED "+ m_NavMeshAgent.speed);
         m_Instance.transform.position = m_SpawnPoint.position;
         m_Instance.transform.rotation = m_SpawnPoint.rotation;
-
+        if(m_Difficulty != null){
+           m_NavMeshAgent.speed = m_Difficulty.Value + 3.0f;
+            Debug.Log("Updated Speed:" + m_NavMeshAgent.speed);
+        }
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);
     }

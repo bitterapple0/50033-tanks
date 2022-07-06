@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] m_TankPrefabs;
     public TankManager[] m_Tanks;               
     public List<Transform> wayPointsForAI;
+    public FloatVariable m_Difficulty;
 
     private int m_RoundNumber;                  
     private WaitForSeconds m_StartWait;         
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
     {
         m_StartWait = new WaitForSeconds(m_StartDelay);
         m_EndWait = new WaitForSeconds(m_EndDelay);
+        m_Difficulty.SetValue(1.0f); // base difficulty
 
         SpawnAllTanks();
         SetCameraTargets();
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 1; i < m_Tanks.Length; i++)
         {
+            Debug.Log("Spawn AI: " + i);
             m_Tanks[i].m_Instance =
                 Instantiate(m_TankPrefabs[i], m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
             m_Tanks[i].m_PlayerNumber = i + 1;
@@ -95,24 +98,22 @@ public class GameManager : MonoBehaviour
 
         m_MessageText.text = string.Empty;
 
-        while (!OneTankLeft()) yield return null;
+        // exits if player dies or player is last tank
+        while (!OneTankLeft() && m_Tanks[0].m_Instance.activeSelf) yield return null;
     }
-
 
     private IEnumerator RoundEnding()
     {
         DisableTankControl();
-
         m_RoundWinner = null;
-
         m_RoundWinner = GetRoundWinner();
-        if (m_RoundWinner != null) m_RoundWinner.m_Wins++;
-
+        UpdateWinCount();
+        UpdateDifficulty();
         m_GameWinner = GetGameWinner();
 
         string message = EndMessage();
         m_MessageText.text = message;
-
+        Debug.Log("WINNER"+m_GameWinner);
         yield return m_EndWait;
     }
 
@@ -143,7 +144,7 @@ public class GameManager : MonoBehaviour
     private TankManager GetGameWinner()
     {
         for (int i = 0; i < m_Tanks.Length; i++)
-        {
+        {   
             if (m_Tanks[i].m_Wins == m_NumRoundsToWin)
                 return m_Tanks[i];
         }
@@ -151,23 +152,46 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
+    private void UpdateWinCount(){
+        // Update win for player
+        if(m_RoundWinner.m_PlayerNumber == 1){
+            m_RoundWinner.m_Wins++;
+        }
+        // Update win for all enemies
+        if(m_RoundWinner.m_PlayerNumber > 1){
+            for(int i = 1; i < m_Tanks.Length; i++){
+                m_Tanks[i].m_Wins++;
+            }
+        }
+    }
+
+    private void UpdateDifficulty(){
+        // if player won the round, update difficulty based on his number of wins
+        if(m_RoundWinner.m_PlayerNumber == 1){ 
+            m_Difficulty.SetValue(m_RoundWinner.m_Wins + 1.0f);
+            Debug.Log("Difficulty: "+ m_Difficulty.Value);
+        }
+    }
+
 
     private string EndMessage()
     {
         var sb = new StringBuilder();
 
-        if (m_RoundWinner != null) sb.Append($"{m_RoundWinner.m_ColoredPlayerText} WINS THE ROUND!");
-        else sb.Append("DRAW!");
+        if (m_RoundWinner != null && m_RoundWinner.m_PlayerNumber == 1) sb.Append($"{m_RoundWinner.m_ColoredPlayerText} WINS THE ROUND!");
+        else sb.Append("ENEMIES WIN THE ROUND");
 
-        sb.Append("\n\n\n\n");
+        sb.Append("\n\n\n");
+        if (m_GameWinner != null && m_GameWinner.m_PlayerNumber == 1)
+            sb.Append($"{m_GameWinner.m_ColoredPlayerText} WINS THE GAME!");
+        else if(m_GameWinner != null && m_GameWinner.m_PlayerNumber > 1)
+            sb.Append("ENEMIES WIN THE GAME!");
+        sb.Append("\n\n");
 
         for (int i = 0; i < m_Tanks.Length; i++)
         {
             sb.AppendLine($"{m_Tanks[i].m_ColoredPlayerText}: {m_Tanks[i].m_Wins} WINS");
         }
-
-        if (m_GameWinner != null)
-            sb.Append($"{m_GameWinner.m_ColoredPlayerText} WINS THE GAME!");
 
         return sb.ToString();
     }

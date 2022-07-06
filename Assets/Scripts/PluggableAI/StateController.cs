@@ -9,6 +9,8 @@ public class StateController : MonoBehaviour {
 	public EnemyStats enemyStats;
 	public Transform eyes;
 	public State remainState;
+	public FloatVariable difficulty;
+
 
 	[HideInInspector] public NavMeshAgent navMeshAgent;
 	[HideInInspector] public TankShooting tankShooting;
@@ -23,7 +25,7 @@ public class StateController : MonoBehaviour {
 	void Awake () 
 	{
 		tankShooting = GetComponent<TankShooting> ();
-		navMeshAgent = GetComponent<NavMeshAgent> ();
+		navMeshAgent = GetComponent<NavMeshAgent> ();	
 	}
 
 	public void SetupAI(bool aiActivationFromTankManager, List<Transform> wayPointsFromTankManager)
