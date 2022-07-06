@@ -86,12 +86,11 @@ public class TankManager
 
     public void Reset()
     {
-        // Debug.Log("RESET CALLED "+ m_NavMeshAgent.speed);
         m_Instance.transform.position = m_SpawnPoint.position;
         m_Instance.transform.rotation = m_SpawnPoint.rotation;
         if(m_Difficulty != null){
            m_NavMeshAgent.speed = m_Difficulty.Value * 2;
-            Debug.Log("Updated Speed:" + m_NavMeshAgent.speed);
+            Debug.Log("Current Speed:" + m_NavMeshAgent.speed);
         }
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);

@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour
 
         for (int i = 1; i < m_Tanks.Length; i++)
         {
-            Debug.Log("Spawn AI: " + i);
             m_Tanks[i].m_Instance =
                 Instantiate(m_TankPrefabs[i], m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
             m_Tanks[i].m_PlayerNumber = i + 1;
@@ -113,7 +112,6 @@ public class GameManager : MonoBehaviour
 
         string message = EndMessage();
         m_MessageText.text = message;
-        Debug.Log("WINNER"+m_GameWinner);
         yield return m_EndWait;
     }
 

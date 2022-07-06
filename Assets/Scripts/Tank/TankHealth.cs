@@ -45,7 +45,7 @@ public class TankHealth : MonoBehaviour
         Debug.Log("Original " + amount);
         if(!m_isAI){
             amount += m_Difficulty.Value * 0.06f * amount; // Player takes more damage
-            Debug.Log("player took: " + amount);
+            Debug.Log("Player took: " + amount);
         } else{
             amount -= m_Difficulty.Value * 0.15f * amount; // AI takes less damage
             Debug.Log("AI took: " + amount);
